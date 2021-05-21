@@ -4,4 +4,4 @@ from pymongo import MongoClient
 class Connect(object):
     @staticmethod    
     def get_connection():
-        return MongoClient("mongodb+srv://bugsDevelopers:<password>@cluster0.z1tfi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
+        return MongoClient("mongodb+srv://bugsDevelopers:12345@cluster0.z1tfi.mongodb.net/myFirstDatabase?retryWrites=true&w=majority")
