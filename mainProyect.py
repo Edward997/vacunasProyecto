@@ -83,7 +83,7 @@ def guardarXML(data):
 
 def escribirArchivo():
     registros = db.vacune.find({})
-    data = xmlW.Element('Abarroteria')
+    data = xmlW.Element('Registros')
     for inventario in registros:
         item = xmlW.SubElement(data, "item")
         item1 = xmlW.SubElement(item, "Indice")
