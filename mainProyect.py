@@ -16,80 +16,87 @@ def insertarReg():
     name = input("Inserta Nombre: ")
     lastname = input("Inserta Apellido: ")
     year = int(input("Inserta Edad: "))
-    folio = int(input("Inserta Folio: "))
+    serie = int(input("Inserta Folio: "))
     print()
-
     db.vacune.insert_one(
         {"Indice": id,
         "Nombre": name,
         "Apellido": lastname,
         "Edad": year,
-        "CURP": folio})
-
+        "Folio": serie})
     consultarReg()
-    # --> Necesitamos obtener la información de la collección para
-    # pegarlos en XML.
     print()
 
 def actualizarReg():
-    print("Hola!")
     # Actualizara la información de un registro.
-    '''
-    db.register.update_one(
-        {"name": "Guuz"},
-        {"$set": {"lastname": "Aniseto"},
-        "$currentDate": {"lastModified": True}})
-    print("Actualización correctamente.")
-    '''
-    # consultarReg()
-    # --> Necesitamos obtener la información de la collección para
-    # pegarlos en XML.
+    print("--- Actualizar ---")
+    indice = int(input("Inserte indice >> "))
+    if db.vacune.find({"Indice" : indice}):
+        name = input("Inserta Nombre: ")
+        lastname = input("Inserta Apellido: ")
+        year = int(input("Inserta Edad: "))
+        serie = int(input("Inserta Folio: "))
+        print()
+        db.register.update_one(
+            {"Indice": indice},
+            {"$set": {
+                "Nombre": name,
+                "Apellido": lastname,
+                "Edad": year,
+                "Folio": serie},
+            "$currentDate": {"lastModified": True}})
+        print("Actualización correctamente.")
+        consultarReg()
+    elif db.vacune.find({"Indice" : indice}) == 0:
+        print("No existe ningun registro!")
+        print()
 
 def eliminarReg():
+    print("--- Eliminar ---")
     # Eliminará el dato que tenga el mismo nombre de dicha variable.
     indice = int(input("Inserte indice >> "))
-    db.vacune.delete_one({"Indice": indice})
-    print("Registro eliminado!\n")
-    # consultarReg()
-    # --> Necesitamos obtener la información de la collección para
-    # pegarlos en XML.
+    if db.vacune.find({"Indice" : indice}):
+        db.vacune.delete_one({"Indice": indice})
+        print("Registro eliminado!\n")
+        consultarReg()
+        print()
+    elif db.vacune.find({"Indice" : indice}) == 0:
+        print("No existe ningun registro!")
+        print()
 
 def consultarReg():
     regs = db.vacune.find({})
-    #este for se puede comentar para no mostrar nada en pantalla xd
+    # Este for se puede comentar para no mostrar nada en pantalla xd
     for inventory in regs:
         print(inventory)
-        str(inventory["Apellido"])
-        str(inventory["CURP"])
-        str(inventory["Edad"])
         str(inventory["Indice"])
         str(inventory["Nombre"])
+        str(inventory["Apellido"])
+        str(inventory["Edad"])
+        str(inventory["Folio"])
     escribirArchivo()
 
 def guardarXML(data):
-    mydata = xmlW.tostring(data)
-    myfile = open("archivo.xml", "w")
-    myfile.write(str(mydata))
-    myfile.close()
-
+    mydata = xmlW.ElementTree(data)
+    mydata.write("archivo.xml")
+    print()
 
 def escribirArchivo():
     registros = db.vacune.find({})
-    data = xmlW.Element("data")
-    items = xmlW.SubElement(data, "items")
+    data = xmlW.Element('Abarroteria')
     for inventario in registros:
-        item = xmlW.SubElement(items, "item")
-        apellido = xmlW.SubElement(item, "apellido")
-        curp = xmlW.SubElement(item, "CURP")
-        edad = xmlW.SubElement(item, "Edad")
-        indice = xmlW.SubElement(item, "Indice")
-        nombre = xmlW.SubElement(item, "Nombre")
+        item = xmlW.SubElement(data, "item")
+        item1 = xmlW.SubElement(item, "Indice")
+        item2 = xmlW.SubElement(item, "Nombre")
+        item3 = xmlW.SubElement(item, "Apellido")
+        item4 = xmlW.SubElement(item, "Edad")
+        item5 = xmlW.SubElement(item, "Folio")
 
-        apellido.text = str(inventario["Apellido"])
-        curp.text = str(inventario["CURP"])
-        edad.text = str(inventario["Edad"])
-        indice.text = str(inventario["Indice"])
-        nombre.text = str(inventario["Nombre"])
+        item1.text = str(inventario["Indice"])
+        item2.text = str(inventario["Nombre"])
+        item3.text = str(inventario["Apellido"])
+        item4.text = str(inventario["Edad"])
+        item5.text = str(inventario["Folio"])
     guardarXML(data)
 
 # Funcion Menu
@@ -125,45 +132,3 @@ def main():
 
 # Inicio del programa.
 main()
-
-'''
-# Funcion que crea el documento XML con formato.
-def crearXML():
-    # Crear la estructura del archivo
-    data = arch.Element('Abarroteria')
-    xd = len(namesArray)
-    for i in range(xd):
-        items = arch.SubElement(data, 'items')
-        item1 = arch.SubElement(items, 'id')
-        item2 = arch.SubElement(items, 'name')
-        item3 = arch.SubElement(items, 'lastname')
-        item4 = arch.SubElement(items, 'year')
-        item5 = arch.SubElement(items, 'folio')
-        
-    # Crear el archivo XML y abrir tal archivo.
-    mydata = arch.ElementTree(data)
-    mydata.write("archivo.xml")
-
-# Función que lee el archivo XML e imprime lo que tiene en consola.
-def leerArch():
-    print("--- Lectura ---")
-    if os.path.isfile("archivo.xml"):
-        if os.stat("archivo.xml").st_size==0:
-            print("El archivo está vacio, debe llenarse!")
-            print()
-        else:
-            xml = minidom.parse("archivo.xml")
-            docs = xml.getElementsByTagName("items")
-            print("{:<5} {:<10} {:<6} {:<3} {:<6}".format('ID', 'Nombre', 'Apellido', 'Edad', 'Folio'))
-            for items in docs:
-                id = items.getElementsByTagName("id")[0]
-                name = items.getElementsByTagName("name")[0]
-                lastname = items.getElementsByTagName("lastname")[0]
-                year = items.getElementsByTagName("year")[0]
-                folio = items.getElementsByTagName("folio")[0]
-                print("{:<5} {:<10} {:<6} {:<3}".format(id.firstChild.data, name.firstChild.data, lastname.firstChild.data, year.firstChild.data, folio.firstChild.data))
-            print()
-    else:
-        print("El archivo de registro no existe.")
-        print()
-'''
