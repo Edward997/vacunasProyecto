@@ -3,6 +3,9 @@ from connect import Connect
 from pymongo import MongoClient
 from pprint import pprint
 
+import xml.etree.ElementTree as xmlW
+from xml.dom import minidom as xmlR
+
 # Llamar como conexión objeto.
 connection = Connect.get_connection()
 db = connection.myFirstDatabase
@@ -53,8 +56,41 @@ def eliminarReg():
 
 def consultarReg():
     regs = db.vacune.find({})
+    #este for se puede comentar para no mostrar nada en pantalla xd
     for inventory in regs:
-        pprint(inventory)
+        print(inventory)
+        str(inventory["Apellido"])
+        str(inventory["CURP"])
+        str(inventory["Edad"])
+        str(inventory["Indice"])
+        str(inventory["Nombre"])
+    escribirArchivo()
+
+def guardarXML(data):
+    mydata = xmlW.tostring(data)
+    myfile = open("archivo.xml", "w")
+    myfile.write(str(mydata))
+    myfile.close()
+
+
+def escribirArchivo():
+    registros = db.vacune.find({})
+    data = xmlW.Element("data")
+    items = xmlW.SubElement(data, "items")
+    for inventario in registros:
+        item = xmlW.SubElement(items, "item")
+        apellido = xmlW.SubElement(item, "apellido")
+        curp = xmlW.SubElement(item, "CURP")
+        edad = xmlW.SubElement(item, "Edad")
+        indice = xmlW.SubElement(item, "Indice")
+        nombre = xmlW.SubElement(item, "Nombre")
+
+        apellido.text = str(inventario["Apellido"])
+        curp.text = str(inventario["CURP"])
+        edad.text = str(inventario["Edad"])
+        indice.text = str(inventario["Indice"])
+        nombre.text = str(inventario["Nombre"])
+    guardarXML(data)
 
 # Funcion Menu
 def menu():
